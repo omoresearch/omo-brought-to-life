@@ -122,22 +122,22 @@ when you ask: look something up, read a file, check a project.
 ## How it works
 
 ```mermaid
-flowchart LR
-  YOU(["You<br/>mic + speaker"])
-  LIVE["GPT-Live<br/>voice"]
-  SRV["voice/<br/>bridge :8795"]
-  HER["brain/<br/>Omo's Hermes"]
-  BODY["body/<br/>omo-body MCP<br/>22 tools"]
-  MC(["Minecraft 26.2<br/>+ mod/"])
+flowchart TB
+  YOU(["🎙️ You, talking out loud"])
+  LIVE["GPT-Live: listens, chats, speaks"]
+  SRV["voice/ bridge on 127.0.0.1:8795"]
+  HER["brain/ Omo's Hermes: plans the job"]
+  BODY["body/ omo-body MCP: 22 tools"]
+  MC(["⛏️ Minecraft 26.2: player OMO"])
 
   YOU <--> LIVE
   LIVE -->|"delegation"| SRV
-  SRV -->|"plan"| HER
-  HER -->|"tools"| BODY
+  SRV --> HER
+  HER -->|"tools/call"| BODY
   SRV -.->|"fast path"| BODY
-  BODY <-->|"LAN"| MC
+  BODY <-->|"LAN, loopback only"| MC
   HER -.->|"answer"| SRV
-  SRV -.->|"speak"| LIVE
+  SRV -.->|"speak it"| LIVE
 
   classDef paper fill:#f5f0e8,stroke:#1a1008,color:#1a1008,stroke-width:1.5px
   classDef ink fill:#1a1008,stroke:#c4b8a8,color:#f5f0e8
