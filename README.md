@@ -122,31 +122,27 @@ when you ask: look something up, read a file, check a project.
 ## How it works
 
 ```mermaid
-flowchart LR
-  subgraph You
-    MIC["🎙️ Mic + speaker<br/>(browser page, WebRTC)"]
-    MC["Minecraft 26.2<br/>Omo Space mod"]
-  end
-  subgraph Voice["voice/: bridge on 127.0.0.1:8795"]
-    LIVE["GPT-Live<br/>gpt-live-1-codex"]
-    SRV["server.mjs<br/>sideband + delegation queue"]
-  end
-  subgraph Brain["brain/: Omo's Hermes on 127.0.0.1:8644"]
-    HER["Hermes Agent<br/>persona + omo-body skill"]
-  end
-  subgraph Body["body/: Mineflayer player OMO"]
-    MCP["omo-body MCP<br/>22 tools"]
-    SK["Mindcraft skills<br/>jobs, guard, reflexes"]
-  end
-  MIC <-->|"audio"| LIVE
-  LIVE -->|"delegation.created"| SRV
-  SRV -->|"fast path: come, follow, stop, fight"| MCP
-  SRV -->|"/v1/chat/completions"| HER
-  HER -->|"tools/call"| MCP
-  MCP --> SK
-  SK <-->|"LAN join, loopback only"| MC
-  HER -->|"answer"| SRV
-  SRV -->|"delegation.context.append<br/>(speakable)"| LIVE
+flowchart TB
+  YOU(["You talk<br/>browser page, mic + speaker"])
+  LIVE["GPT-Live<br/>listens and talks back"]
+  SRV["voice/ bridge<br/>127.0.0.1:8795"]
+  HER["brain/ Omo's Hermes<br/>plans the job"]
+  BODY["body/ omo-body MCP<br/>22 tools, Mindcraft skills"]
+  MC(["Minecraft 26.2<br/>Omo Space mod + mod/ patches"])
+
+  YOU <-->|"voice, WebRTC"| LIVE
+  LIVE -->|"delegation"| SRV
+  SRV -->|"request"| HER
+  HER -->|"tools/call"| BODY
+  SRV -.->|"fast path: come, follow, stop, fight"| BODY
+  BODY <-->|"player OMO joins over LAN, loopback only"| MC
+  HER -.->|"answer"| SRV
+  SRV -.->|"speak it"| LIVE
+
+  classDef paper fill:#f5f0e8,stroke:#1a1008,color:#1a1008,stroke-width:1.5px
+  classDef ink fill:#1a1008,stroke:#1a1008,color:#f5f0e8
+  class LIVE,SRV,HER,BODY paper
+  class YOU,MC ink
 ```
 
 1. **Voice** (`voice/`). The page opens a WebRTC call to GPT-Live. The bridge
