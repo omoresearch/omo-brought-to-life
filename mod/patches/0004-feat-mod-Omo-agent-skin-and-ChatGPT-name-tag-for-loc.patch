@@ -1,0 +1,226 @@
+From 75d4677facbc202c422dcea266fff3d539925906 Mon Sep 17 00:00:00 2001
+From: Harry Edwards <136197487+harrythentrepreneur@users.noreply.github.com>
+Date: Tue, 27 Oct 2026 13:36:18 +1100
+Subject: [PATCH 4/4] feat(mod): Omo agent skin and 'ChatGPT - ' name tag for
+ local agent bodies
+
+---
+ .../java/space/omo/life/client/AgentLan.java  |  20 +++++++++++
+ .../life/mixin/AgentRegistrySyncMixin.java    |   8 +----
+ .../space/omo/life/mixin/AgentSkinMixin.java  |  34 ++++++++++++++++++
+ .../assets/omolife/textures/entity/omo.png    | Bin 0 -> 3871 bytes
+ mod/src/main/resources/omolife.mixins.json    |   3 +-
+ 5 files changed, 57 insertions(+), 8 deletions(-)
+ create mode 100644 mod/src/main/java/space/omo/life/mixin/AgentSkinMixin.java
+ create mode 100644 mod/src/main/resources/assets/omolife/textures/entity/omo.png
+
+diff --git a/mod/src/main/java/space/omo/life/client/AgentLan.java b/mod/src/main/java/space/omo/life/client/AgentLan.java
+index e91313a..7201953 100644
+--- a/mod/src/main/java/space/omo/life/client/AgentLan.java
++++ b/mod/src/main/java/space/omo/life/client/AgentLan.java
+@@ -11,7 +11,9 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
+ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+ import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
+ import net.minecraft.client.server.IntegratedServer;
++import net.minecraft.ChatFormatting;
+ import net.minecraft.network.chat.Component;
++import net.minecraft.world.scores.PlayerTeam;
+ import net.minecraft.server.MinecraftServer;
+ import net.minecraft.server.level.ServerPlayer;
+ 
+@@ -80,7 +82,25 @@ public final class AgentLan {
+         System.out.println("[omolife] agents can join this world at 127.0.0.1:" + port);
+     }
+ 
++    /** Lower-case usernames of the local agent bodies. */
++    public static final java.util.Set<String> AGENT_NAMES = java.util.Set.of(
++        System.getProperty("omo.agents.names", "omo,teacher").toLowerCase(java.util.Locale.ROOT).split(","));
++
++    public static boolean isAgent(String name) {
++        return name != null && AGENT_NAMES.contains(name.toLowerCase(java.util.Locale.ROOT));
++    }
++
++    // Shows the agent as "ChatGPT - OMO" over his head, in the tab list and in chat.
++    private static void tag(ServerPlayer player, MinecraftServer server) {
++        var board = server.getScoreboard();
++        PlayerTeam team = board.getPlayerTeam("omo_agents");
++        if (team == null) team = board.addPlayerTeam("omo_agents");
++        team.setPlayerPrefix(Component.literal("ChatGPT - ").withStyle(ChatFormatting.AQUA));
++        board.addPlayerToTeam(player.getScoreboardName(), team);
++    }
++
+     private static void guard(ServerPlayer player, MinecraftServer server) {
++        if (!server.usesAuthentication() && isAgent(player.getScoreboardName())) tag(player, server);
+         if (ALLOW_REMOTE || server.usesAuthentication()) return;
+         if (server.isSingleplayerOwner(player.nameAndId())) return;
+         SocketAddress address = player.connection.getRemoteAddress();
+diff --git a/mod/src/main/java/space/omo/life/mixin/AgentRegistrySyncMixin.java b/mod/src/main/java/space/omo/life/mixin/AgentRegistrySyncMixin.java
+index a8b4a3c..cc57c09 100644
+--- a/mod/src/main/java/space/omo/life/mixin/AgentRegistrySyncMixin.java
++++ b/mod/src/main/java/space/omo/life/mixin/AgentRegistrySyncMixin.java
+@@ -1,8 +1,5 @@
+ package space.omo.life.mixin;
+ 
+-import java.util.Locale;
+-import java.util.Set;
+-
+ import org.spongepowered.asm.mixin.Mixin;
+ import org.spongepowered.asm.mixin.injection.At;
+ import org.spongepowered.asm.mixin.injection.Inject;
+@@ -25,14 +22,11 @@ import net.minecraft.server.network.ServerConfigurationPacketListenerImpl;
+  */
+ @Mixin(value = RegistrySyncManager.class, remap = false)
+ public abstract class AgentRegistrySyncMixin {
+-    private static final Set<String> OMO_AGENT_NAMES = Set.of(
+-        System.getProperty("omo.agents.names", "teacher").toLowerCase(Locale.ROOT).split(","));
+ 
+     @Inject(method = "configureClient", at = @At("HEAD"), cancellable = true)
+     private static void omolife$skipForLocalAgents(ServerConfigurationPacketListenerImpl handler,
+             MinecraftServer server, CallbackInfo ci) {
+         if (server.usesAuthentication() || handler.getOwner() == null) return;
+-        String name = handler.getOwner().name();
+-        if (name != null && OMO_AGENT_NAMES.contains(name.toLowerCase(Locale.ROOT))) ci.cancel();
++        if (space.omo.life.client.AgentLan.isAgent(handler.getOwner().name())) ci.cancel();
+     }
+ }
+diff --git a/mod/src/main/java/space/omo/life/mixin/AgentSkinMixin.java b/mod/src/main/java/space/omo/life/mixin/AgentSkinMixin.java
+new file mode 100644
+index 0000000..41db5bc
+--- /dev/null
++++ b/mod/src/main/java/space/omo/life/mixin/AgentSkinMixin.java
+@@ -0,0 +1,34 @@
++package space.omo.life.mixin;
++
++import org.spongepowered.asm.mixin.Mixin;
++import org.spongepowered.asm.mixin.Shadow;
++import org.spongepowered.asm.mixin.injection.At;
++import org.spongepowered.asm.mixin.injection.Inject;
++import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
++
++import com.mojang.authlib.GameProfile;
++
++import net.minecraft.client.multiplayer.PlayerInfo;
++import net.minecraft.core.ClientAsset;
++import net.minecraft.resources.Identifier;
++import net.minecraft.world.entity.player.PlayerModelType;
++import net.minecraft.world.entity.player.PlayerSkin;
++import space.omo.life.client.AgentLan;
++
++/** Gives the local agent body (an offline bot with no Mojang skin) the bundled Omo skin. */
++@Mixin(PlayerInfo.class)
++public abstract class AgentSkinMixin {
++    private static final ClientAsset.Texture OMO_SKIN = new ClientAsset.ResourceTexture(
++        Identifier.fromNamespaceAndPath("omolife", "entity/omo"),
++        Identifier.fromNamespaceAndPath("omolife", "textures/entity/omo.png"));
++
++    @Shadow public abstract GameProfile getProfile();
++
++    @Inject(method = "getSkin", at = @At("RETURN"), cancellable = true)
++    private void omolife$agentSkin(CallbackInfoReturnable<PlayerSkin> cir) {
++        if (!AgentLan.isAgent(getProfile().name())) return;
++        PlayerSkin base = cir.getReturnValue();
++        cir.setReturnValue(new PlayerSkin(OMO_SKIN, base == null ? null : base.cape(),
++            base == null ? null : base.elytra(), PlayerModelType.WIDE, true));
++    }
++}
+diff --git a/mod/src/main/resources/assets/omolife/textures/entity/omo.png b/mod/src/main/resources/assets/omolife/textures/entity/omo.png
+new file mode 100644
+index 0000000000000000000000000000000000000000..0ee891802eb0c1c6628d0b1df66c636e3c63cee1
+GIT binary patch
+literal 3871
+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
+
+literal 0
+HcmV?d00001
+
+diff --git a/mod/src/main/resources/omolife.mixins.json b/mod/src/main/resources/omolife.mixins.json
+index bddeab0..4e67a85 100644
+--- a/mod/src/main/resources/omolife.mixins.json
++++ b/mod/src/main/resources/omolife.mixins.json
+@@ -11,7 +11,8 @@
+     "ScreenAccessor",
+     "StationScreenMixin",
+     "TerminalShortcutsMixin",
+-    "WindowTitleMixin"
++    "WindowTitleMixin",
++    "AgentSkinMixin"
+   ],
+   "injectors": {
+     "defaultRequire": 1
+-- 
+2.53.0
+

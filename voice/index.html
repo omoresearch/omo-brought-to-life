@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Omo · voice</title>
+<style>
+  /* omo.sh palette: cream paper, ink, warm browns. */
+  body { font: 17px/1.5 "Crimson Text", Georgia, serif; background: #f5f0e8; color: #1a1008; max-width: 760px; margin: 48px auto; padding: 0 20px; }
+  h1 { font-size: 34px; font-weight: 600; margin: 0 0 4px; }
+  .sub { color: #4a3b2f; font-style: italic; margin: 0 0 28px; }
+  button { font: 500 15px/1 "IBM Plex Mono", ui-monospace, monospace; padding: 14px 24px; border-radius: 999px; border: 0; background: #1a1008; color: #f5f0e8; cursor: pointer; }
+  button.stop { background: #e26824; }
+  #state { margin-left: 14px; color: #4a3b2f; font: 14px "IBM Plex Mono", ui-monospace, monospace; }
+  #log { margin-top: 28px; display: flex; flex-direction: column; gap: 8px; }
+  .row { padding: 10px 14px; border-radius: 8px; background: #fffaf2; border: 1px solid #d4cdc0; white-space: pre-wrap; }
+  .user { border-left: 4px solid #4a3b2f; }
+  .assistant { border-left: 4px solid #e26824; }
+  .tool { border-left: 4px solid #c4b8a8; color: #4a3b2f; font: 14px/1.45 "IBM Plex Mono", ui-monospace, monospace; }
+  .error { border-left: 4px solid #b3261e; color: #8c1d18; }
+  .status { color: #4a3b2f; opacity: .75; font: 13px "IBM Plex Mono", ui-monospace, monospace; background: none; border: 0; padding: 2px 14px; }
+</style>
+</head>
+<body>
+<h1>Talk to Omo</h1>
+<p class="sub">GPT-Live voice over your ChatGPT login. Anything that needs doing goes to Hermes.</p>
+<button id="go">Start talking</button><span id="state">idle</span>
+<div id="log"></div>
+<audio id="out" autoplay></audio>
+<script>
+const go = document.getElementById('go');
+const state = document.getElementById('state');
+const logEl = document.getElementById('log');
+let pc = null, mic = null;
+
+function row(cls, text) {
+  const d = document.createElement('div');
+  d.className = 'row ' + cls;
+  d.textContent = text;
+  logEl.prepend(d);
+}
+
+new EventSource('/events').onmessage = (m) => {
+  const e = JSON.parse(m.data);
+  if (e.kind === 'transcript') row(e.role, (e.role === 'user' ? 'You: ' : 'Omo: ') + e.text);
+  else if (e.kind === 'tool') row('tool', '→ Hermes: ' + e.text);
+  else if (e.kind === 'tool_result') row('tool', '← Hermes: ' + e.text);
+  else if (e.kind === 'status') row(e.level === 'error' ? 'error' : 'status', e.text);
+};
+
+function waitIce(conn) {
+  if (conn.iceGatheringState === 'complete') return Promise.resolve();
+  return new Promise((resolve) => {
+    const t = setTimeout(resolve, 3000);
+    conn.addEventListener('icegatheringstatechange', () => {
+      if (conn.iceGatheringState === 'complete') { clearTimeout(t); resolve(); }
+    });
+  });
+}
+
+async function start() {
+  state.textContent = 'connecting…';
+  mic = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } });
+  pc = new RTCPeerConnection();
+  pc.ontrack = (ev) => { document.getElementById('out').srcObject = ev.streams[0]; };
+  pc.onconnectionstatechange = () => { state.textContent = pc.connectionState; };
+  pc.addTrack(mic.getAudioTracks()[0], mic);
+  const dc = pc.createDataChannel('oai-events');
+  dc.onmessage = (m) => { try { const e = JSON.parse(m.data); if (e.type === 'error') row('error', JSON.stringify(e)); } catch {} };
+  await pc.setLocalDescription(await pc.createOffer());
+  await waitIce(pc);
+  const res = await fetch('/offer', { method: 'POST', headers: { 'Content-Type': 'application/sdp' }, body: pc.localDescription.sdp });
+  const body = await res.text();
+  if (!res.ok) throw new Error(body);
+  await pc.setRemoteDescription({ type: 'answer', sdp: body });
+  go.textContent = 'Stop';
+  go.classList.add('stop');
+}
+
+function stop() {
+  fetch('/hangup', { method: 'POST' }).catch(() => {});
+  pc?.close(); pc = null;
+  mic?.getTracks().forEach((t) => t.stop()); mic = null;
+  go.textContent = 'Start talking';
+  go.classList.remove('stop');
+  state.textContent = 'idle';
+}
+
+go.onclick = () => {
+  if (pc) return stop();
+  start().catch((e) => { row('error', e.message || String(e)); stop(); });
+};
+</script>
+</body>
+</html>

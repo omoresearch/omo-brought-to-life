@@ -1,0 +1,72 @@
+From aa33e2589a9ce225234db66fdc8ef8f49d113562 Mon Sep 17 00:00:00 2001
+From: Harry Edwards <136197487+harrythentrepreneur@users.noreply.github.com>
+Date: Tue, 27 Oct 2026 13:19:28 +1100
+Subject: [PATCH 3/4] feat(mod): let the local agent body skip Fabric registry
+ sync in agent LAN mode
+
+---
+ .../life/mixin/AgentRegistrySyncMixin.java    | 38 +++++++++++++++++++
+ mod/src/main/resources/omolife.mixins.json    |  3 +-
+ 2 files changed, 40 insertions(+), 1 deletion(-)
+ create mode 100644 mod/src/main/java/space/omo/life/mixin/AgentRegistrySyncMixin.java
+
+diff --git a/mod/src/main/java/space/omo/life/mixin/AgentRegistrySyncMixin.java b/mod/src/main/java/space/omo/life/mixin/AgentRegistrySyncMixin.java
+new file mode 100644
+index 0000000..a8b4a3c
+--- /dev/null
++++ b/mod/src/main/java/space/omo/life/mixin/AgentRegistrySyncMixin.java
+@@ -0,0 +1,38 @@
++package space.omo.life.mixin;
++
++import java.util.Locale;
++import java.util.Set;
++
++import org.spongepowered.asm.mixin.Mixin;
++import org.spongepowered.asm.mixin.injection.At;
++import org.spongepowered.asm.mixin.injection.Inject;
++import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
++
++import net.fabricmc.fabric.impl.registry.sync.RegistrySyncManager;
++import net.minecraft.server.MinecraftServer;
++import net.minecraft.server.network.ServerConfigurationPacketListenerImpl;
++
++/**
++ * Lets the local Omo agent body (a plain Mineflayer client, no Fabric) past
++ * Fabric's registry-sync check, which otherwise kicks any client without
++ * Fabric API from a modded world.
++ *
++ * Only for the agent names below, and only while the world runs in agent LAN
++ * mode (authentication off, see AgentLan). AgentLan's join guard still kicks
++ * the same name if it connects from another computer. Fabric keeps vanilla ids
++ * stable and appends modded ones, so the bot reads vanilla blocks correctly
++ * and simply sees modded blocks as unknown ids.
++ */
++@Mixin(value = RegistrySyncManager.class, remap = false)
++public abstract class AgentRegistrySyncMixin {
++    private static final Set<String> OMO_AGENT_NAMES = Set.of(
++        System.getProperty("omo.agents.names", "teacher").toLowerCase(Locale.ROOT).split(","));
++
++    @Inject(method = "configureClient", at = @At("HEAD"), cancellable = true)
++    private static void omolife$skipForLocalAgents(ServerConfigurationPacketListenerImpl handler,
++            MinecraftServer server, CallbackInfo ci) {
++        if (server.usesAuthentication() || handler.getOwner() == null) return;
++        String name = handler.getOwner().name();
++        if (name != null && OMO_AGENT_NAMES.contains(name.toLowerCase(Locale.ROOT))) ci.cancel();
++    }
++}
+diff --git a/mod/src/main/resources/omolife.mixins.json b/mod/src/main/resources/omolife.mixins.json
+index 637ff5e..bddeab0 100644
+--- a/mod/src/main/resources/omolife.mixins.json
++++ b/mod/src/main/resources/omolife.mixins.json
+@@ -26,6 +26,7 @@
+     "MonitorWallMixin",
+     "MonitorMirrorAccessor",
+     "ServerComputerMixin",
+-    "ServerMonitorAccessor"
++    "ServerMonitorAccessor",
++    "AgentRegistrySyncMixin"
+   ]
+ }
+-- 
+2.53.0
+

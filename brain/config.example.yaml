@@ -1,0 +1,31 @@
+# Omo's Hermes profile: copy to $OMO_HERMES_HOME/config.yaml (default
+# ~/.omo-hermes) and adjust. No secrets live in this file: the ChatGPT login
+# is stored by `hermes auth`, and API_SERVER_KEY goes in $OMO_HERMES_HOME/.env.
+model:
+  provider: openai-codex          # your ChatGPT subscription login (hermes auth)
+  # default: <model>             # pick one your plan offers with `hermes model`
+agent:
+  max_turns: 30
+platforms:
+  api_server:                     # the voice bridge sends delegations here
+    enabled: true
+    extra:
+      host: 127.0.0.1             # loopback only
+      port: 8644                  # = OMO_LIVE_HERMES_URL in the bridge
+platform_toolsets:
+  api_server:
+    - skills
+    - memory
+    - session_search
+    - file
+    - terminal
+    - delegation
+mcp_servers:
+  omo-body:                       # Omo's body, served by voice/server.mjs
+    url: http://127.0.0.1:8795/mcp
+    enabled: true
+    timeout: 120
+delegation:
+  max_concurrent_children: 2
+  max_iterations: 15
+  max_spawn_depth: 1

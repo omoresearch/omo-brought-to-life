@@ -1,0 +1,32 @@
+{
+  "name": "omo-brought-to-life",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Omo, brought to life: talk to him by voice (GPT-Live), and he acts as a real player in your Minecraft world through a Hermes brain and a Mineflayer body.",
+  "license": "MIT",
+  "homepage": "https://www.omo.sh",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/omoresearch/omo-brought-to-life.git"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "start": "node voice/server.mjs",
+    "test": "node --test voice/*.test.mjs body/*.test.mjs test/*.test.mjs",
+    "postinstall": "node body/patch-mc-26.2.mjs node_modules"
+  },
+  "dependencies": {
+    "mineflayer": "^4.39.0",
+    "mineflayer-armor-manager": "^2.0.1",
+    "mineflayer-auto-eat": "^3.3.6",
+    "mineflayer-collectblock": "^1.6.0",
+    "mineflayer-pathfinder": "^2.4.5",
+    "mineflayer-pvp": "^1.3.2",
+    "prismarine-item": "^1.18.0",
+    "vec3": "^0.2.0",
+    "ws": "^8.18.0"
+  }
+}
