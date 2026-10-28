@@ -122,25 +122,25 @@ when you ask: look something up, read a file, check a project.
 ## How it works
 
 ```mermaid
-flowchart TB
-  YOU(["You talk<br/>browser page, mic + speaker"])
-  LIVE["GPT-Live<br/>listens and talks back"]
-  SRV["voice/ bridge<br/>127.0.0.1:8795"]
-  HER["brain/ Omo's Hermes<br/>plans the job"]
-  BODY["body/ omo-body MCP<br/>22 tools, Mindcraft skills"]
-  MC(["Minecraft 26.2<br/>Omo Space mod + mod/ patches"])
+flowchart LR
+  YOU(["You<br/>mic + speaker"])
+  LIVE["GPT-Live<br/>voice"]
+  SRV["voice/<br/>bridge :8795"]
+  HER["brain/<br/>Omo's Hermes"]
+  BODY["body/<br/>omo-body MCP<br/>22 tools"]
+  MC(["Minecraft 26.2<br/>+ mod/"])
 
-  YOU <-->|"voice, WebRTC"| LIVE
+  YOU <--> LIVE
   LIVE -->|"delegation"| SRV
-  SRV -->|"request"| HER
-  HER -->|"tools/call"| BODY
-  SRV -.->|"fast path: come, follow, stop, fight"| BODY
-  BODY <-->|"player OMO joins over LAN, loopback only"| MC
+  SRV -->|"plan"| HER
+  HER -->|"tools"| BODY
+  SRV -.->|"fast path"| BODY
+  BODY <-->|"LAN"| MC
   HER -.->|"answer"| SRV
-  SRV -.->|"speak it"| LIVE
+  SRV -.->|"speak"| LIVE
 
   classDef paper fill:#f5f0e8,stroke:#1a1008,color:#1a1008,stroke-width:1.5px
-  classDef ink fill:#1a1008,stroke:#1a1008,color:#f5f0e8
+  classDef ink fill:#1a1008,stroke:#c4b8a8,color:#f5f0e8
   class LIVE,SRV,HER,BODY paper
   class YOU,MC ink
 ```
