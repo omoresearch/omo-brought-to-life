@@ -166,8 +166,8 @@ More detail: [docs/how-it-works.md](docs/how-it-works.md).
 ## Quick start
 
 You need **Linux** (tested on x86_64), **Node 22+**, **Minecraft Java 26.2**
-with the [Omo Space](https://github.com/omoresearch/omo-space) mod plus the
-patches in [`mod/`](mod/), **[Hermes Agent](https://hermes-agent.nousresearch.com/docs)**,
+with the [Omo Space](https://github.com/omoresearch/omo-space) mod
+**[v1.2.0 or newer](https://github.com/omoresearch/omo-space/releases/latest)**, **[Hermes Agent](https://hermes-agent.nousresearch.com/docs)**,
 and a **ChatGPT subscription** whose account can use GPT-Live voice.
 
 **1. Install**
@@ -187,8 +187,9 @@ HERMES_HOME=~/.omo-hermes hermes auth          # log in with ChatGPT (provider o
 HERMES_HOME=~/.omo-hermes hermes model         # pick a model your plan offers
 ```
 
-**3. Give him a place.** Build the Omo Space mod with the patches in
-[`mod/patches/`](mod/patches/), start the game and load a world. The mod
+**3. Give him a place.** Install Omo Space
+[v1.2.0+](https://github.com/omoresearch/omo-space/releases/latest) (the agent
+LAN join ships in it; [`mod/`](mod/) explains what it does), start the game and load a world. The mod
 publishes it to LAN on port 25566 for local agents and writes
 `~/.config/omo/lan.json`.
 
@@ -269,8 +270,8 @@ answered in one reply (above).
   (needs LAN cheats on, which also enables `/tp`).
 - **The skin is client-side.** An offline bot has no Mojang skin; the mod paints
   the Omo skin on your client only.
-- **The mod part is a patch, not a standalone mod.** It applies to the Omo Space
-  mod source ([`mod/`](mod/)). Hermes replies take a few seconds (8 to 12 s in
+- **The world side lives in the Omo Space mod** (v1.2.0+), not in a standalone
+  mod; [`mod/`](mod/) documents it. Hermes replies take a few seconds (8 to 12 s in
   the log above), so GPT-Live says "on it" first.
 
 ## Repository

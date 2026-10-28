@@ -3,9 +3,10 @@
 Omo's body is an ordinary Minecraft client (Mineflayer). Your single-player
 world is not open to anyone, and a Fabric world normally refuses plain clients.
 Four small commits to the [Omo Space](https://github.com/omoresearch/omo-space)
-mod fix that, for local agents only. They are here as `git format-patch`
-files, plus copies of the changed sources so you can read them without
-applying anything.
+mod fix that, for local agents only. They are merged upstream and ship in
+[Omo Space v1.2.0](https://github.com/omoresearch/omo-space/releases/tag/v1.2.0),
+so you don't need to apply anything. The `git format-patch` files and copies of
+the changed sources are kept here for reading.
 
 | Patch | What it does |
 |---|---|
@@ -19,7 +20,9 @@ Agent usernames come from `-Domo.agents.names` (default `omo,teacher`).
 `-Domo.agents.allowRemote=true` admits unauthenticated players from your
 network too (off by default; see [SECURITY.md](../SECURITY.md)).
 
-## Apply
+## Apply (only for an older Omo Space checkout)
+
+Omo Space v1.2.0 and newer already include these commits. For an older tree:
 
 ```bash
 git clone https://github.com/omoresearch/omo-space && cd omo-space
