@@ -10,6 +10,11 @@
 </p>
 
 <p align="center">
+  <a href="https://github.com/omoresearch/omo-brought-to-life"><img alt="Star Omo on GitHub" src="https://img.shields.io/github/stars/omoresearch/omo-brought-to-life?style=for-the-badge&logo=github&label=Star%20Omo&color=1a1008&labelColor=4a3b2f"></a>
+  <br><sub>⭐ Star the repo to follow Omo as he learns new things.</sub>
+</p>
+
+<p align="center">
   <a href="https://github.com/omoresearch/omo-brought-to-life/releases/latest"><b>Download v0.1.0</b></a>
   &nbsp;·&nbsp;
   <a href="#quick-start">Quick start</a>
@@ -299,6 +304,11 @@ Full list in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). Built by
 **NOT AN OFFICIAL MINECRAFT PRODUCT. NOT APPROVED BY OR ASSOCIATED WITH MOJANG OR
 MICROSOFT.** Not affiliated with or endorsed by OpenAI. ChatGPT and GPT are
 trademarks of OpenAI.
+
+<p align="center">
+  <b>Like what Omo can do?</b> A star is the best way to help.<br><br>
+  <a href="https://github.com/omoresearch/omo-brought-to-life"><img alt="Star Omo on GitHub" src="https://img.shields.io/github/stars/omoresearch/omo-brought-to-life?style=for-the-badge&logo=github&label=Star%20Omo&color=1a1008&labelColor=4a3b2f"></a>
+</p>
 
 <p align="center">
   <a href="https://www.omo.sh"><img src="docs/media/omo-icon.png" width="56" alt="Omo Research"></a>
