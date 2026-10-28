@@ -262,7 +262,7 @@ answered in one reply (above).
   in 26.2 data from open upstream PRs. Multi-item crafts desync on 26.2, so he
   crafts one batch at a time (slower but correct).
 - **Jobs can come up short.** On stream, a request for 8 birch logs finished
-  with 1 collected (trees nearby ran out of reach). He reports the real count,
+  with 1 collected. He reports the real count,
   so Hermes has to notice and retry; long gather-then-craft chains are the
   weakest part today.
 - **In creative mode, digging drops nothing**, so he switches himself to survival
