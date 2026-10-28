@@ -261,9 +261,10 @@ answered in one reply (above).
 - **Minecraft 26.2 is newer than released Mineflayer.** `npm install` patches
   in 26.2 data from open upstream PRs. Multi-item crafts desync on 26.2, so he
   crafts one batch at a time (slower but correct).
-- **Gathering can over-report.** On stream he once reported "collected 8
-  birch_log" while only 1 reached his inventory. Ask him to `pickup`, or check
-  `body_state`, before long gather-then-craft chains.
+- **Jobs can come up short.** On stream, a request for 8 birch logs finished
+  with 1 collected (trees nearby ran out of reach). He reports the real count,
+  so Hermes has to notice and retry; long gather-then-craft chains are the
+  weakest part today.
 - **In creative mode, digging drops nothing**, so he switches himself to survival
   (needs LAN cheats on, which also enables `/tp`).
 - **The skin is client-side.** An offline bot has no Mojang skin; the mod paints
