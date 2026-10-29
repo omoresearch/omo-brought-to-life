@@ -17,7 +17,7 @@
 <p align="center">
   <a href="https://github.com/omoresearch/omo-brought-to-life/releases/latest"><b>Download v0.1.0</b></a>
   &nbsp;·&nbsp;
-  <a href="#quick-start">Quick start</a>
+  <a href="#quick-start-with-your-agent">Quick start with your agent</a> &nbsp;·&nbsp; <a href="#quick-start">Quick start</a>
   &nbsp;·&nbsp;
   <a href="#how-it-works">How it works</a>
   &nbsp;·&nbsp;
@@ -167,6 +167,28 @@ flowchart TB
    Fabric world, and give agents the Omo skin and the `ChatGPT - ` name tag.
 
 More detail: [docs/how-it-works.md](docs/how-it-works.md).
+
+## Quick start with your agent
+
+Let your coding agent set Omo up for you. Paste this into **Claude Code**, **Codex** or **Hermes**, opened in an empty folder. It installs
+everything from this repository, stops whenever you need to sign in or decide something, and never signs in for you.
+
+```text
+Set up Omo R1 for me from https://github.com/omoresearch/omo-brought-to-life
+
+1. Read README.md. First check that I have Linux, Node 22+, Minecraft Java 26.2 with Omo Space v1.2.0 or newer, Hermes Agent, and a ChatGPT plan that can use GPT-Live voice. Tell me what is missing before you start.
+2. Follow its Quick start: clone, npm install, npm test, then scripts/setup-brain.sh. When Hermes needs me to log in, hand it to me. Never log in for me.
+3. When I have a world open, run scripts/start.sh and tell me to open http://127.0.0.1:8795 and press "Start talking".
+4. His first job: Suggest three things I could ask him first, and tell me how to say them.
+```
+
+To skip the question, replace the text after `His first job:` with your own idea. For example:
+
+- **Come here:** `I will say: “Hey Omo, come here.”`
+- **Make a stone sword:** `I will say: “Hey Omo, get some wood and make me a stone sword.”`
+- **Follow and guard me:** `I will say: “Hey Omo, follow me and keep me safe.”`
+
+There is also a version with buttons to pick from on [omo.sh](https://www.omo.sh/research/omo-r1#agent-quick-start).
 
 ## Quick start
 
